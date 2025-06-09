@@ -6,7 +6,7 @@ namespace FairDuoSentry
     {
         public const string PLUGIN_GUID = $"{PLUGIN_ORIGINAL_AUTHOR}.{PLUGIN_NAME}";
         public const string PLUGIN_NAME = "FairDuoSentry";
-        public const string USERS_PLUGIN_NAME = "Duo Sentry";
+        public const string USERS_PLUGIN_NAME = "FairDuoSentry";
         public const string PLUGIN_VERSION = "0.0.1";
         public const string PLUGIN_DESCRIPTION = "Allows the Lone Sentry loadout on the Destroyer to be used by two players in a fair way.";
         public const string PLUGIN_ORIGINAL_AUTHOR = "rcannood";

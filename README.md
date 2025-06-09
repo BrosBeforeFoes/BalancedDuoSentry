@@ -2,7 +2,7 @@
 ![](https://img.shields.io/badge/Game%20Version-1.1.0-111111?style=flat&labelColor=24292f&color=111111)
 [![](https://img.shields.io/discord/1180651062550593536.svg?&logo=discord&logoColor=ffffff&style=flat&label=Discord&labelColor=24292f&color=111111)](https://discord.gg/g2u5wpbMGu "Void Crew Modding Discord")
 
-# Duo Sentry
+# FairDuoSentry
 
 Version 0.0.1  
 For Game Version 1.1.0  
