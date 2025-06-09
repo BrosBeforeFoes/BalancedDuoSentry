@@ -14,6 +14,10 @@ namespace FairDuoSentry
     {
         internal static ManualLogSource Log;
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "N/A")]
+
+        // Brain Confessor Mk1: bc2dcf53afe3a90478b5d9fcffb1f523
+        // Brain Benediction Mk1: 6b2c6be56b6678643bd0039305890622
+        internal static readonly GUIDUnion SENTRY_FRIGATE_AUTO_BRAIN_WEAPON_GUID = new GUIDUnion("bc2dcf53afe3a90478b5d9fcffb1f523");
         private void Awake()
         {
             Log = Logger;
