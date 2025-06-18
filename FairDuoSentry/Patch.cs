@@ -1,69 +1,140 @@
 ﻿using HarmonyLib;
 using Photon.Pun;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
 
-// Corrected using directives for types present in Assembly-CSharp.dll
 using CG.Game;
-using CG.Client.Utils;
 using CG.Objects;
 using CG.Ship.Hull;
-using CG.Space;
 using Gameplay.Utilities;
 using Gameplay.CompositeWeapons;
-using ToolClasses;
 using CG.Ship.Modules;
 using CG.Game.Player;
 using Gameplay.Carryables;
 
-
 namespace FairDuoSentry
 {
 
-    // --- NEW MOD RULE: DuoPlayerModRule ---
     [Serializable]
-	public class DuoPlayerModRule : ModDynamicCondition
-	{
-		public override void OnInitialize()
-		{
-			ClientGame.Current.ModelEventBus.OnPlayerAdded.Subscribe(OnPlayerAdded);
-			ClientGame.Current.ModelEventBus.OnPlayerRemoved.Subscribe(OnPlayerRemoved);
-		}
+    public class SoloOrDuoPlayerCondition : ModDynamicCondition
+    {
+        public override void OnInitialize()
+        {
+            ClientGame.Current.ModelEventBus.OnPlayerAdded.Subscribe(OnPlayerAdded);
+            ClientGame.Current.ModelEventBus.OnPlayerRemoved.Subscribe(OnPlayerRemoved);
+        }
 
-		public override void OnDestroy()
-		{
-			ClientGame.Current.ModelEventBus.OnPlayerAdded.Unsubscribe(OnPlayerAdded);
-			ClientGame.Current.ModelEventBus.OnPlayerRemoved.Unsubscribe(OnPlayerRemoved);
-		}
+        public override void OnDestroy()
+        {
+            ClientGame.Current.ModelEventBus.OnPlayerAdded.Unsubscribe(OnPlayerAdded);
+            ClientGame.Current.ModelEventBus.OnPlayerRemoved.Unsubscribe(OnPlayerRemoved);
+        }
 
-		private void OnPlayerRemoved(Player obj)
-		{
-			CheckIfActive();
-		}
+        private void OnPlayerRemoved(Player obj)
+        {
+            CheckIfActive();
+        }
 
-		private void OnPlayerAdded(Player obj)
-		{
-			CheckIfActive();
-		}
+        private void OnPlayerAdded(Player obj)
+        {
+            CheckIfActive();
+        }
 
-		public override bool ShouldApply()
-		{
-			return ClientGame.Current.Players.Count == 2;
-		}
-	}
+        public override bool ShouldApply()
+        {
+            return ClientGame.Current.Players.Count <= 2;
+        }
 
-    // --- NEW TARGET PATCH: Dynamically Adjust StatMod values via ModSocket.ApplyMods ---
+        public override string Description()
+        {
+            return "#Players <= 2";
+        }
+    }
+
+    [Serializable]
+    public class DuoPlayerModRule : ModDynamicValue
+    {
+        public override void OnInitialize()
+        {
+            ClientGame.Current.ModelEventBus.OnPlayerAdded.Subscribe(OnPlayerAdded);
+            ClientGame.Current.ModelEventBus.OnPlayerRemoved.Subscribe(OnPlayerRemoved);
+        }
+
+        public override void OnDestroy()
+        {
+            ClientGame.Current.ModelEventBus.OnPlayerAdded.Unsubscribe(OnPlayerAdded);
+            ClientGame.Current.ModelEventBus.OnPlayerRemoved.Unsubscribe(OnPlayerRemoved);
+        }
+
+        private void OnPlayerRemoved(Player obj)
+        {
+            RecalculateValue();
+        }
+
+        private void OnPlayerAdded(Player obj)
+        {
+            RecalculateValue();
+        }
+
+        public override void RecalculateValue()
+        {
+            if (this.ModifierPrimitive is FloatModifier floatMod)
+            {
+                // Adjust float modifier value based on player count
+                // Solo: +100%, Duo: +75%, Else: 0%
+                if (ClientGame.Current.Players.Count == 2)
+                    floatMod.Amount = 0.75f;
+                else if (ClientGame.Current.Players.Count == 1)
+                    floatMod.Amount = 1.25f; // TODO: adjust this value to 1.0f
+                else
+                    floatMod.Amount = 0.0f;
+            }
+            else if (this.ModifierPrimitive is IntModifier intMod)
+            {
+                // Adjust int modifier value based on player count
+                // Solo: -2, Duo: -1, Else: 0
+                if (ClientGame.Current.Players.Count == 2)
+                    intMod.Amount = -1;
+                else if (ClientGame.Current.Players.Count == 1)
+                    intMod.Amount = -3; // TODO: adjust this value to -2
+                else
+                    intMod.Amount = 0;
+            }
+            else
+            {
+                BepinPlugin.Log.LogWarning($"DuoPlayerModRule: Unsupported modifier type {this.ModifierPrimitive.GetType().Name}");
+            }
+        }
+
+        public override void ValidateType()
+        {
+            if (!(this.ModifierPrimitive is PrimitiveModifier<float> || this.ModifierPrimitive is PrimitiveModifier<int>))
+            {
+                throw new InvalidOperationException($"DuoPlayerModRule can only be used with FloatModifier or IntModifier, not {this.ModifierPrimitive.GetType().Name}");
+            }
+        }
+
+        public override string DynamicValueDescription(PrimitiveModifier mod, bool negativeValueIsGood)
+        {
+            if (mod is FloatModifier floatMod)
+            {
+                return $"{floatMod.Amount} (Duo Player Condition)";
+            }
+            else if (mod is IntModifier intMod)
+            {
+                return $"{intMod.Amount} (Duo Player Condition)";
+            }
+            return "Unknown Modifier Type";
+        }
+    }
+
     [HarmonyPatch(typeof(ModSocket), nameof(ModSocket.OnCarryableAcquired))]
     internal class ModSocket_OnCarryableAcquired_Patch
     {
-        // Use Postfix to run after original mods are applied by the socket
         static void Prefix(ModSocket __instance, ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
         {
             if (!PhotonNetwork.IsMasterClient) return;
 
-            // Step 1: Identify if this ModSocket is the HomunculusSocket on the Sentry Frigate's Central Computer Module
-            // We need to find the CentralShipComputerModule of the player's current ship.
+            // Identify if this ModSocket is the HomunculusSocket on the Sentry Frigate's Central Computer Module
             CentralShipComputerModule centralComputer = ClientGame.Current?.PlayerShip?.GetModule<CentralShipComputerModule>();
 
             if (centralComputer == null || __instance != centralComputer.HomunculusSocket)
@@ -74,14 +145,9 @@ namespace FairDuoSentry
 
             if (!(carryable is CarryableMod carryableMod))
             {
-                BepinPlugin.Log.LogWarning($"ModSocket_OnCarryableAcquired: Carryable is not a CarryableMod. Cannot apply mods.");
+                // Carryable is not a CarryableMod
                 return;
             }
-
-            List<StatMod> newMods = new List<StatMod>();
-
-
-            BepinPlugin.Log.LogInfo($"[DEBUG - ModSocket.ApplyMods] Checking {carryableMod.Modifiers.Count} mods in list...");
 
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)
@@ -100,123 +166,32 @@ namespace FairDuoSentry
                 // Check if this StatMod's dynamic condition is our SinglePlayerModRule
                 if (currentModBeingApplied.DynamicCondition is SinglePlayerModRule)
                 {
-                    BepinPlugin.Log.LogInfo($"- Confirmed DynamicCondition is SinglePlayerModRule for Stat: {statName} (from ModSocket)");
+                    BepinPlugin.Log.LogInfo($"- Confirmed DynamicCondition is SinglePlayerModRule for Stat: {statName}");
 
                     // PowerWanted modification (Id 271581185)
                     if (currentModBeingApplied.Type == StatType.PowerWanted.Id)
                     {
-                        if (currentModBeingApplied.Mod is IntModifier powerIntMod)
+                        BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for PowerWanted StatMod: {statName}");
+                        currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
+                        currentModBeingApplied.DynamicValue = new DuoPlayerModRule
                         {
-                            // public StatMod(PrimitiveModifier mod, int type, ModTagConfiguration tagConfig)
-                            StatMod newMod = new StatMod(
-                                new IntModifier(-1, powerIntMod.Type),
-                                StatType.PowerWanted.Id,
-                                currentModBeingApplied.TagConfiguration
-                            );
-                            newMod.DynamicCondition = new DuoPlayerModRule(); // Set our new dynamic condition
-                            newMod.SetSource(currentModBeingApplied.Mod.Source); // Copy the source from the original mod
-                            newMod.InitDynamicElements(); // Initialize the dynamic condition
-                            newMods.Add(newMod); // Add to the list of new mods to apply
-
-                        }
-                        else
-                        {
-                            BepinPlugin.Log.LogWarning($"- PowerWanted mod from socket.Mod is NOT PrimitiveModifier<int>. Actual type: {modPrimitiveType}");
-                        }
+                            ModifierPrimitive = currentModBeingApplied.Mod
+                        };
                     }
-                    // Damage modification (Id 1)
+                    // Damage modification (Id ?)
                     else if (currentModBeingApplied.Type == StatType.Damage.Id)
                     {
-                        if (currentModBeingApplied.Mod is FloatModifier damageFloatMod)
+                        BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for Damage StatMod: {statName}");
+                        currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
+                        currentModBeingApplied.DynamicValue = new DuoPlayerModRule
                         {
-                            // public StatMod(PrimitiveModifier mod, int type, ModTagConfiguration tagConfig)
-                            StatMod newMod = new StatMod(
-                                new FloatModifier(0.75f, damageFloatMod.Type),
-                                StatType.Damage.Id,
-                                currentModBeingApplied.TagConfiguration
-                            );
-                            newMod.DynamicCondition = new DuoPlayerModRule(); // Set our new dynamic condition
-                            newMod.SetSource(currentModBeingApplied.Mod.Source); // Copy the source from the original mod
-                            newMod.InitDynamicElements(); // Initialize the dynamic condition
-                            newMods.Add(newMod); // Add to the list of new mods to apply
-
-
-                            StatMod newMod2 = new StatMod(
-                                new FloatModifier(0.75f, damageFloatMod.Type),
-                                StatType.FireRate.Id,
-                                currentModBeingApplied.TagConfiguration
-                            );
-                            newMod2.DynamicCondition = new SinglePlayerModRule();
-                            newMod2.SetSource(currentModBeingApplied.Mod.Source); // Copy the source from the original mod
-                            newMod2.InitDynamicElements(); // Initialize the dynamic condition
-                            newMods.Add(newMod2); // Add to the list of new mods to apply
-
-                        }
-                        else
-                        {
-                            BepinPlugin.Log.LogWarning($"- Damage mod from socket.Mod is NOT PrimitiveModifier<float>. Actual type: {modPrimitiveType}");
-                        }
+                            ModifierPrimitive = currentModBeingApplied.Mod
+                        };
                     }
                 }
 
 
             }
-            
-            carryableMod.Modifiers.AddRange(newMods); // Add our new mods to the carryable's modifiers
-            BepinPlugin.Log.LogInfo($"[DEBUG - ModSocket.ApplyMods] Added {newMods.Count} new mods to CarryableMod '{carryableMod.DisplayName}'.");
-
-        }
-    }
-
-
-    // --- ORIGINAL LOGGER PATCHES (Keep these for general debugging) ---
-    // CompositeWeaponModuleLoggerPatch (useful for getting weapon GUID and base stats)
-    [HarmonyPatch(typeof(CompositeWeaponModule), nameof(CompositeWeaponModule.OnPhotonInstantiate))]
-    public static class CompositeWeaponModuleLoggerPatch
-    {
-        public static void Postfix(CompositeWeaponModule __instance)
-        {
-            if (__instance == null || !__instance.photonView.IsMine) return;
-
-            if (__instance.CompositeDataRef != null && !__instance.CompositeDataRef.IsNull)
-            {
-                BepinPlugin.Log.LogInfo($"[Weapon Module Logger] Composite Weapon Module '{__instance.DisplayName}' instantiated.");
-                BepinPlugin.Log.LogInfo($"[Weapon Module Logger] Weapon GUID: {__instance.CompositeDataRef.AssetGuid.ToString()}");
-
-            }
-        }
-    }
-
-    // HomunculusDispenseLoggerPatch (useful for general debugging)
-    [HarmonyPatch(typeof(HomunculusAndBiomassSocket), nameof(HomunculusAndBiomassSocket.DispenseHomunculusNow))]
-    internal class HomunculusDispenseLoggerPatch
-    {
-        static void Postfix(HomunculusAndBiomassSocket __instance)
-        {
-            if (!PhotonNetwork.IsMasterClient) { return; }
-
-            if (__instance.Payload == null)
-            {
-                BepinPlugin.Log.LogWarning("HomunculusDispenseNow: Payload is null after dispense. Cannot detect Homunculus info.");
-                return;
-            }
-
-            BepinPlugin.Log.LogInfo($"--- Homunculus Dispensed Detected ---");
-            BepinPlugin.Log.LogInfo($"Homunculus GameObject Name: {__instance.Payload.gameObject.name}");
-
-
-            OrbitObject homunculusOrbitObject = __instance.Payload.GetComponent<OrbitObject>();
-            if (homunculusOrbitObject != null)
-            {
-                BepinPlugin.Log.LogInfo($"Homunculus is an OrbitObject. Display Name: {homunculusOrbitObject.DisplayName}");
-                BepinPlugin.Log.LogInfo($"Homunculus Faction: {homunculusOrbitObject.Faction}");
-
-            }
-            else
-            {
-                BepinPlugin.Log.LogWarning("Dispensed Homunculus is not an OrbitObject or component not found.");
-            }
-            BepinPlugin.Log.LogInfo($"-----------------------------------");
         }
     }
 }
