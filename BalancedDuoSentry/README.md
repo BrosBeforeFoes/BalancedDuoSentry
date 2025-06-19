@@ -14,7 +14,7 @@ Requires:  BepInEx-BepInExPack-5.4.2100, VoidCrewModdingTeam-VoidManager-1.2.8
 
 ### 💡 Function(s)
 
-- Allows the Lone Sentry loadout on the Destroyer to be used by two players in a fair way.
+- Allows the Lone Sentry loadout on the Destroyer to be used by two players in a Balanced way.
 
 ### 🎮 Client Usage
 
@@ -35,4 +35,4 @@ Ensure that you have [BepInEx 5](https://thunderstore.io/c/void-crew/p/BepInEx/B
 
 #### ✔️ Mod installation - **Unzip the contents into the BepInEx plugin directory**
 
-Drag and drop `FairDuoSentry.dll` into `Void Crew\BepInEx\plugins`
+Drag and drop `BalancedDuoSentry.dll` into `Void Crew\BepInEx\plugins`

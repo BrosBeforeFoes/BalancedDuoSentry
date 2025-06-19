@@ -3,7 +3,7 @@ using CG.Game;
 using Gameplay.Utilities;
 using CG.Game.Player;
 
-namespace FairDuoSentry
+namespace BalancedDuoSentry
 {
     [Serializable]
     public class SoloOrDuoPlayerDynamicValue : ModDynamicValue

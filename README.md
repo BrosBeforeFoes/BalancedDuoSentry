@@ -2,7 +2,7 @@
 ![](https://img.shields.io/badge/Game%20Version-1.1.0-111111?style=flat&labelColor=24292f&color=111111)
 [![](https://img.shields.io/discord/1180651062550593536.svg?&logo=discord&logoColor=ffffff&style=flat&label=Discord&labelColor=24292f&color=111111)](https://discord.gg/g2u5wpbMGu "Void Crew Modding Discord")
 
-# Fair Duo Sentry
+# BalancedDuoSentry
 
 Version 0.0.1  
 For Game Version 1.1.0  
@@ -40,4 +40,4 @@ Ensure that you have [BepInEx 5](https://thunderstore.io/c/void-crew/p/BepInEx/B
 
 #### ✔️ Mod installation - **Unzip the contents into the BepInEx plugin directory**
 
-Drag and drop `FairDuoSentry.dll` into `Void Crew\BepInEx\plugins`
+Drag and drop `BalancedDuoSentry.dll` into `Void Crew\BepInEx\plugins`

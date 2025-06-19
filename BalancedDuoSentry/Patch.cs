@@ -9,7 +9,7 @@ using Gameplay.CompositeWeapons;
 using CG.Ship.Modules;
 using Gameplay.Carryables;
 
-namespace FairDuoSentry
+namespace BalancedDuoSentry
 {
 
     [HarmonyPatch(typeof(ModSocket), nameof(ModSocket.OnCarryableAcquired))]

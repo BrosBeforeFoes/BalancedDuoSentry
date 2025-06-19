@@ -5,7 +5,7 @@ using HarmonyLib;
 using VoidManager;
 using VoidManager.MPModChecks;
 
-namespace FairDuoSentry
+namespace BalancedDuoSentry
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.USERS_PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInProcess("Void Crew.exe")]

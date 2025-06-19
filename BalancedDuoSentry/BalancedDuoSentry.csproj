@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <AssemblyName>FairDuoSentry</AssemblyName>
+    <AssemblyName>BalancedDuoSentry</AssemblyName>
     <Description>
     </Description>
     <Version>0.0.1</Version>
@@ -12,7 +12,7 @@
       https://nuget.bepinex.dev/v3/index.json;
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
-    <RootNamespace>FairDuoSentry</RootNamespace>
+    <RootNamespace>BalancedDuoSentry</RootNamespace>
     <AssemblyTitle>Enable a smaller buff when two players enter the Lone Sentry Destroyer.</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
