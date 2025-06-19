@@ -1,6 +1,6 @@
-﻿using HarmonyLib;
-using Photon.Pun;
+﻿using System.Collections.Generic;
 
+using HarmonyLib;
 using CG.Game;
 using CG.Objects;
 using CG.Ship.Hull;
@@ -16,10 +16,12 @@ namespace BalancedDuoSentry
     internal class ModSocket_OnCarryableAcquired_Patch
     {
         public static GUIDUnion destroyerShipGUID = new GUIDUnion("4bc2ff9e1d156c94a9c94286a7aaa79b");
+        public static DuoPlayerCondition duoPlayerCondition = new DuoPlayerCondition();
 
         static void Prefix(ModSocket __instance, ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
         {
-            if (ClientGame.Current.playerShip.assetGuid != destroyerShipGUID) {
+            if (ClientGame.Current.playerShip.assetGuid != destroyerShipGUID)
+            {
                 // This ship is not a Destroyer
                 return;
             }
@@ -39,44 +41,57 @@ namespace BalancedDuoSentry
                 return;
             }
 
+            // store list of new mods to add
+            List<StatMod> newMods = new List<StatMod>();
+
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)
             {
                 string statName = StatType.GetNameById(currentModBeingApplied.Type, false);
+
+                // print some logs
                 string dynamicConditionType = currentModBeingApplied.DynamicCondition?.GetType().Name ?? "NULL";
                 string modPrimitiveType = currentModBeingApplied.Mod?.GetType().Name ?? "NULL";
+                string modType = currentModBeingApplied.Mod?.Type.ToString() ?? "NULL";
                 string modAmount = "N/A";
 
                 if (currentModBeingApplied.Mod is PrimitiveModifier<float> floatMod) modAmount = floatMod.Amount.ToString();
                 else if (currentModBeingApplied.Mod is PrimitiveModifier<int> intMod) modAmount = intMod.Amount.ToString();
 
-                BepinPlugin.Log.LogInfo($"- Processing Mod from Socket: Name={statName}, TypeID={currentModBeingApplied.Type}, Condition={dynamicConditionType}, ModPrimitive={modPrimitiveType}, Amount={modAmount}");
+                BepinPlugin.Log.LogInfo($"- Processing Mod from Socket: Name={statName}, TypeID={currentModBeingApplied.Type}, Condition={dynamicConditionType}, ModPrimitive={modPrimitiveType}, ModType={modType}, Amount={modAmount}");
 
 
                 // Check if this StatMod's dynamic condition is our SinglePlayerModRule
                 if (currentModBeingApplied.DynamicCondition is SinglePlayerModRule)
                 {
-                    BepinPlugin.Log.LogInfo($"Description of SinglePlayerModRule: ${currentModBeingApplied.DynamicCondition.Description()}");
 
-                    BepinPlugin.Log.LogInfo($"- Confirmed DynamicCondition is SinglePlayerModRule for Stat: {statName}");
-                    currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
-
-                    // PowerWanted modification (Id 271581185)
                     if (currentModBeingApplied.Type == StatType.PowerWanted.Id)
                     {
-                        BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for PowerWanted StatMod: {statName}");
-                        currentModBeingApplied.DynamicValue = new SoloOrDuoPlayerDynamicValue(currentModBeingApplied.Mod);
+                        IntModifier currentPowerWantedMod = currentModBeingApplied.Mod as IntModifier;
+                        IntModifier newIntModifier = new IntModifier(-1, currentPowerWantedMod.Type);
+                        StatMod newStatMod = new StatMod(newIntModifier, StatType.PowerWanted.Id, currentModBeingApplied.TagConfiguration);
+                        newStatMod.DynamicCondition = duoPlayerCondition;
+                        newMods.Add(newStatMod);
                     }
-                    // Damage modification (Id ?)
                     else if (currentModBeingApplied.Type == StatType.Damage.Id)
                     {
-                        BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for Damage StatMod: {statName}");
-                        currentModBeingApplied.DynamicValue = new SoloOrDuoPlayerDynamicValue(currentModBeingApplied.Mod);
+                        FloatModifier currentDamageMod = currentModBeingApplied.Mod as FloatModifier;
+                        FloatModifier newFloatModifier = new FloatModifier(0.75f, currentDamageMod.Type);
+                        StatMod newStatMod = new StatMod(newFloatModifier, StatType.Damage.Id, currentModBeingApplied.TagConfiguration);
+                        newStatMod.DynamicCondition = duoPlayerCondition;
+                        newMods.Add(newStatMod);
+                    }
+                    else
+                    {
+                        BepinPlugin.Log.LogWarning($"- Skipping SinglePlayerModRule for unsupported StatType: {statName}");
+                        continue;
                     }
                 }
 
-
             }
+
+            carryableMod.Modifiers.AddRange(newMods);
+
         }
     }
 }

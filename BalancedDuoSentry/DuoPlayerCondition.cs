@@ -8,7 +8,7 @@ namespace BalancedDuoSentry
 {
 
     [Serializable]
-    public class SoloOrDuoPlayerCondition : ModDynamicCondition
+    public class DuoPlayerCondition : ModDynamicCondition
     {
         public override void OnInitialize()
         {
@@ -34,12 +34,12 @@ namespace BalancedDuoSentry
 
         public override bool ShouldApply()
         {
-            return ClientGame.Current.Players.Count <= 2;
+            return ClientGame.Current.Players.Count == 2;
         }
 
         public override string Description()
         {
-            return "When <color=#FFD700>playing Solo or Duo</color>";
+            return "When <color=#FFD700>playing Duo</color>";
         }
     }
 
