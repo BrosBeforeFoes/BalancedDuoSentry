@@ -74,17 +74,27 @@ namespace BalancedDuoSentry
             }
         }
 
+        public override string Description()
+        {
+            return "SoloOrDuoPlayerDynamicValue";
+        }
+
         public override string DynamicValueDescription(PrimitiveModifier mod, bool negativeValueIsGood)
         {
-            if (mod is FloatModifier floatMod)
+            String condition = ClientGame.Current.Players.Count == 1 ? "Solo" : ClientGame.Current.Players.Count == 2 ? "Duo" : "Many";
+
+            if (ModifierPrimitive is FloatModifier floatMod)
             {
-                return $"{floatMod.Amount} (Duo Player Condition)";
+                return $"{condition} Player Condition: +{floatMod.Amount * 100}% Damage";
             }
-            else if (mod is IntModifier intMod)
+            else if (ModifierPrimitive is IntModifier intMod)
             {
-                return $"{intMod.Amount} (Duo Player Condition)";
+                return $"{condition} Player Condition: {intMod.Amount} Power Wanted";
             }
-            return "Unknown Modifier Type";
+            else
+            {
+                return "Unknown Modifier Type";
+            }
         }
     }
 }

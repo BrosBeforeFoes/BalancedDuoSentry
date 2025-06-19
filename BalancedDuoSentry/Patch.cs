@@ -17,8 +17,6 @@ namespace BalancedDuoSentry
     {
         static void Prefix(ModSocket __instance, ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
         {
-            if (!PhotonNetwork.IsMasterClient) return;
-
             // Identify if this ModSocket is the HomunculusSocket on the Sentry Frigate's Central Computer Module
             CentralShipComputerModule centralComputer = ClientGame.Current?.PlayerShip?.GetModule<CentralShipComputerModule>();
 
@@ -33,6 +31,8 @@ namespace BalancedDuoSentry
                 // Carryable is not a CarryableMod
                 return;
             }
+
+            
 
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)
@@ -51,20 +51,21 @@ namespace BalancedDuoSentry
                 // Check if this StatMod's dynamic condition is our SinglePlayerModRule
                 if (currentModBeingApplied.DynamicCondition is SinglePlayerModRule)
                 {
+                    BepinPlugin.Log.LogInfo($"Description of SinglePlayerModRule: ${currentModBeingApplied.DynamicCondition.Description()}");
+
                     BepinPlugin.Log.LogInfo($"- Confirmed DynamicCondition is SinglePlayerModRule for Stat: {statName}");
+                    currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
 
                     // PowerWanted modification (Id 271581185)
                     if (currentModBeingApplied.Type == StatType.PowerWanted.Id)
                     {
                         BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for PowerWanted StatMod: {statName}");
-                        currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
                         currentModBeingApplied.DynamicValue = new SoloOrDuoPlayerDynamicValue(currentModBeingApplied.Mod);
                     }
                     // Damage modification (Id ?)
                     else if (currentModBeingApplied.Type == StatType.Damage.Id)
                     {
                         BepinPlugin.Log.LogInfo($"- Overriding DynamicCondition and DynamicValue for Damage StatMod: {statName}");
-                        currentModBeingApplied.DynamicCondition = new SoloOrDuoPlayerCondition();
                         currentModBeingApplied.DynamicValue = new SoloOrDuoPlayerDynamicValue(currentModBeingApplied.Mod);
                     }
                 }
