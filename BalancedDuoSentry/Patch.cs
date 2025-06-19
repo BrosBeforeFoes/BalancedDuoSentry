@@ -32,7 +32,7 @@ namespace BalancedDuoSentry
                 return;
             }
 
-            
+            // TODO: Make sure ship is a Destroyer and not Frigate
 
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)

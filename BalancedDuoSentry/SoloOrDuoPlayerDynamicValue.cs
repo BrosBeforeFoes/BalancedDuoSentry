@@ -45,7 +45,7 @@ namespace BalancedDuoSentry
                 if (ClientGame.Current.Players.Count == 2)
                     floatMod.Amount = 0.75f;
                 else if (ClientGame.Current.Players.Count == 1)
-                    floatMod.Amount = 1.25f; // TODO: adjust this value to 1.0f
+                    floatMod.Amount = 1.00f;
                 else
                     floatMod.Amount = 0.0f;
             }
@@ -56,7 +56,7 @@ namespace BalancedDuoSentry
                 if (ClientGame.Current.Players.Count == 2)
                     intMod.Amount = -1;
                 else if (ClientGame.Current.Players.Count == 1)
-                    intMod.Amount = -3; // TODO: adjust this value to -2
+                    intMod.Amount = -2;
                 else
                     intMod.Amount = 0;
             }
@@ -76,7 +76,7 @@ namespace BalancedDuoSentry
 
         public override string Description()
         {
-            return "SoloOrDuoPlayerDynamicValue";
+            return "In <color=#FFD700>Sentry Ship</color>";
         }
 
         public override string DynamicValueDescription(PrimitiveModifier mod, bool negativeValueIsGood)
@@ -85,11 +85,11 @@ namespace BalancedDuoSentry
 
             if (ModifierPrimitive is FloatModifier floatMod)
             {
-                return $"{condition} Player Condition: +{floatMod.Amount * 100}% Damage";
+                return "<color=#00AB4D>+100%</color> if <color=#FFD700>Solo</color>, <color=#00AB4D>+75%</color> if Duo";
             }
             else if (ModifierPrimitive is IntModifier intMod)
             {
-                return $"{condition} Player Condition: {intMod.Amount} Power Wanted";
+                return "<color=#00AB4D>-2</color> if <color=#FFD700>Solo</color>, <color=#00AB4D>-1</color> if Duo";
             }
             else
             {

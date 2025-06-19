@@ -39,7 +39,7 @@ namespace BalancedDuoSentry
 
         public override string Description()
         {
-            return "#Players <= 2";
+            return "When <color=#FFD700>playing Solo or Duo</color>";
         }
     }
 
