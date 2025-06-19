@@ -7,6 +7,7 @@ using Gameplay.CompositeWeapons;
 using CG.Ship.Modules;
 using Gameplay.Carryables;
 using System;
+using Gameplay.Tags;
 
 namespace BalancedDuoSentry
 {
@@ -42,8 +43,6 @@ namespace BalancedDuoSentry
 
             Boolean encounteredSoloPlayerCondition = false;
             Boolean encounteredDuoPlayerCondition = false;
-            StatMod damageStatMod = null;
-            StatMod powerWantedStatMod = null;
 
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)
@@ -51,17 +50,6 @@ namespace BalancedDuoSentry
                 if (currentModBeingApplied.DynamicCondition is SinglePlayerModRule)
                 {
                     encounteredSoloPlayerCondition = true;
-
-                    if (currentModBeingApplied.Type == StatType.Damage.Id)
-                    {
-                        // Store the damage stat mod for later
-                        damageStatMod = currentModBeingApplied;
-                    }
-                    else if (currentModBeingApplied.Type == StatType.PowerWanted.Id)
-                    {
-                        // Store the power wanted stat mod for later
-                        powerWantedStatMod = currentModBeingApplied;
-                    }
                 }
                 else if (currentModBeingApplied.DynamicCondition is DuoPlayerCondition)
                 {
@@ -71,15 +59,23 @@ namespace BalancedDuoSentry
 
             if (encounteredSoloPlayerCondition && !encounteredDuoPlayerCondition)
             {
+                // carryableMod.Modifiers.Clear(); // Clear all mods being applied by this socket
+
+                BepinPlugin.Log.LogInfo($"Detected Destroyer with Lone Sentry layout! Applying Duo Modifications to Blessed Homunculus");
+
                 // create new power wanted mod and add it to the homunculus
-                StatMod newStatMod = new DuoPowerWantedStatMod(powerWantedStatMod.TagConfiguration);
-                newStatMod.DynamicCondition = duoPlayerCondition;
-                carryableMod.Modifiers.Add(newStatMod);
+                StatMod newMod0 = new DuoPowerWantedStatMod();
+				newMod0.Mod.Source = carryableMod;
+				newMod0.Mod.InformationSource = carryableMod;
+                newMod0.DynamicCondition = duoPlayerCondition;
+                carryableMod.Modifiers.Add(newMod0);
 
                 // create new damage mod and add it to the homunculus
-                StatMod newDamageStatMod = new DuoDamageStatMod(damageStatMod.TagConfiguration);
-                newDamageStatMod.DynamicCondition = duoPlayerCondition;
-                carryableMod.Modifiers.Add(newDamageStatMod);
+                StatMod newMod1 = new DuoDamageStatMod();
+				newMod1.Mod.Source = carryableMod;
+				newMod1.Mod.InformationSource = carryableMod;
+                newMod1.DynamicCondition = duoPlayerCondition;
+                carryableMod.Modifiers.Add(newMod1);
             }
 
         }

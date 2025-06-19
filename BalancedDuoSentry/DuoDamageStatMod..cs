@@ -5,6 +5,10 @@ namespace BalancedDuoSentry
 {
     class DuoDamageStatMod : StatMod, IDescriptiveModifierSource
     {
+        public DuoDamageStatMod() : base(new FloatModifier(0.75f, ModifierType.AdditiveMultiplier), StatType.Damage.Id)
+        {
+        }
+        
         public DuoDamageStatMod(ModTagConfiguration tagConfig) : base(new FloatModifier(0.75f, ModifierType.AdditiveMultiplier), StatType.Damage.Id, tagConfig)
         {
         }
