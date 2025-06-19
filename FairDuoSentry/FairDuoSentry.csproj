@@ -13,7 +13,7 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>FairDuoSentry</RootNamespace>
-    <AssemblyTitle>Allows the Lone Sentry loadout on the Destroyer to be used by two players in a fair way.</AssemblyTitle>
+    <AssemblyTitle>Enable a smaller buff when two players enter the Lone Sentry Destroyer.</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
