@@ -15,14 +15,21 @@ namespace BalancedDuoSentry
     [HarmonyPatch(typeof(ModSocket), nameof(ModSocket.OnCarryableAcquired))]
     internal class ModSocket_OnCarryableAcquired_Patch
     {
+        public static GUIDUnion destroyerShipGUID = new GUIDUnion("4bc2ff9e1d156c94a9c94286a7aaa79b");
+
         static void Prefix(ModSocket __instance, ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
         {
+            if (ClientGame.Current.playerShip.assetGuid != destroyerShipGUID) {
+                // This ship is not a Destroyer
+                return;
+            }
+
             // Identify if this ModSocket is the HomunculusSocket on the Sentry Frigate's Central Computer Module
             CentralShipComputerModule centralComputer = ClientGame.Current?.PlayerShip?.GetModule<CentralShipComputerModule>();
 
             if (centralComputer == null || __instance != centralComputer.HomunculusSocket)
             {
-                // This is not the HomunculusSocket we care about.
+                // This socket is not the HomunculusSocket
                 return;
             }
 
@@ -31,8 +38,6 @@ namespace BalancedDuoSentry
                 // Carryable is not a CarryableMod
                 return;
             }
-
-            // TODO: Make sure ship is a Destroyer and not Frigate
 
             // Iterate through the list of mods *being applied by this socket*
             foreach (StatMod currentModBeingApplied in carryableMod.Modifiers)
