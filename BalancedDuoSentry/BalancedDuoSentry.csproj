@@ -13,7 +13,7 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>BalancedDuoSentry</RootNamespace>
-    <AssemblyTitle>Adds a two-player version of the Lone Sentry Frigate layout.</AssemblyTitle>
+    <AssemblyTitle>Adds a two-player version of the Lone Sentry Destroyer.</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>

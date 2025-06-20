@@ -14,7 +14,7 @@ Requires:  BepInEx-BepInExPack-5.4.2100, NihilityShift-VoidManager-1.2.8
 
 ### 💡 Function(s)
 
-- Adds a two-player version of the Lone Sentry Frigate layout.
+- Adds a two-player version of the Lone Sentry Destroyer.
 
 Effects of the Lone Sentry Destroyer Blessed Homunculus:
 
