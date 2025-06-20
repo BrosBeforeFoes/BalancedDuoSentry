@@ -34,10 +34,10 @@ jobs:
           PLUGIN_INFO_FILE="$PLUGIN_DIR/ReleaseFiles/PluginInfo.config"
 
           # extract plugin name from PluginInfo.config
-          PLUGIN_NAME=$(grep -oP 'PluginName=\K[^ ]+' "$PLUGIN_INFO_FILE")
+          PLUGIN_NAME=$(grep -oP '^PluginName=\K[^ ]+' "$PLUGIN_INFO_FILE")
 
           # extract version from PluginInfo.config
-          PLUGIN_VERSION=$(grep -oP 'PluginVersion=\K[0-9.]+(?=)' "$PLUGIN_INFO_FILE")
+          PLUGIN_VERSION=$(grep -oP '^PluginVersion=\K[0-9.]+(?=)' "$PLUGIN_INFO_FILE")
 
           # expected zip file name
           EXPECTED_ZIP_PATH="$PLUGIN_DIR/bin/Debug/$TARGET_FRAMEWORK/Releases/$PLUGIN_NAME-$PLUGIN_VERSION.zip"
