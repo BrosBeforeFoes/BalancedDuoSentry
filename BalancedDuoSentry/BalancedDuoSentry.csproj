@@ -13,7 +13,7 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>BalancedDuoSentry</RootNamespace>
-    <AssemblyTitle>Enable a smaller buff when two players enter the Lone Sentry Destroyer.</AssemblyTitle>
+    <AssemblyTitle>Adds a two-player version of the Lone Sentry Frigate layout.</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
