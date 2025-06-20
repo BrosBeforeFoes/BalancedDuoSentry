@@ -6,9 +6,6 @@ namespace BalancedDuoSentry
 
     class DuoPowerWantedStatMod : StatMod, IDescriptiveModifierSource
     {
-        public DuoPowerWantedStatMod() : base(new IntModifier(-1, ModifierType.PrimaryAddend), StatType.PowerWanted.Id)
-        {
-        }
 
         public DuoPowerWantedStatMod(ModTagConfiguration tagConfig) : base(new IntModifier(-1, ModifierType.PrimaryAddend), StatType.PowerWanted.Id, tagConfig)
         {
