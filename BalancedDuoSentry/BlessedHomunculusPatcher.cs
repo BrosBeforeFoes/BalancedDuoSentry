@@ -12,7 +12,7 @@ namespace BalancedDuoSentry
         public static void ApplyPatch(CarryableMod homunculus)
         {
             // This ship is not a Destroyer
-            if (ClientGame.Current.playerShip.assetGuid != destroyerShipGUID) return;
+            if (ClientGame.Current.PlayerShip.assetGuid != destroyerShipGUID) return;
 
             StatMod damageStatMod = null;
             StatMod powerWantedStatMod = null;
