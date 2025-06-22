@@ -10,13 +10,13 @@ namespace BalancedDuoSentry
     [Serializable]
     public class DuoPlayerCondition : ModDynamicCondition
     {
-        protected override void OnInitialize()
+        public override void OnInitialize()
         {
             ClientGame.Current.ModelEventBus.OnPlayerAdded.Subscribe(OnPlayerAdded);
             ClientGame.Current.ModelEventBus.OnPlayerRemoved.Subscribe(OnPlayerRemoved);
         }
 
-        protected override void OnDestroy()
+        public override void OnDestroy()
         {
             ClientGame.Current.ModelEventBus.OnPlayerAdded.Unsubscribe(OnPlayerAdded);
             ClientGame.Current.ModelEventBus.OnPlayerRemoved.Unsubscribe(OnPlayerRemoved);
@@ -32,7 +32,7 @@ namespace BalancedDuoSentry
             CheckIfActive();
         }
 
-        protected override bool ShouldApply()
+        public override bool ShouldApply()
         {
             return ClientGame.Current.Players.Count == 2;
         }
