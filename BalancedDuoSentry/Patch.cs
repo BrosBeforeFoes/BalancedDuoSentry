@@ -23,16 +23,21 @@ namespace BalancedDuoSentry
         }
     }
 
-    [HarmonyPatch(typeof(ModSocket), nameof(ModSocket.OnCarryableAcquired))]
-    internal class ModSocket_OnCarryableAcquired_Patch
+    [HarmonyPatch(typeof(ModSocket), nameof(ModSocket.Start))]
+    internal class ModSocket_Start_Patch
     {
-        static void Prefix(ModSocket __instance, ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
+        static void Postfix(ModSocket __instance)
         {
             CentralShipComputerModule centralComputer = ClientGame.Current?.PlayerShip?.GetModule<CentralShipComputerModule>();
 
             // Socket is not a HomunculusSocket
             if (centralComputer == null || __instance != centralComputer.HomunculusSocket) return;
 
+            __instance.OnAcquireCarryable += OnCarriableAcquired;
+        }
+
+        private static void OnCarriableAcquired(ICarrier carrier, CarryableObject carryable, ICarrier previousCarrier)
+        {
             // Payload is not a carryableMopd
             if (!(carryable is CarryableMod carryableMod)) return;
 
