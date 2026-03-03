@@ -1,3 +1,7 @@
+## 0.1.0
+
+* Updated dependencies to latest versions.
+
 ## 0.0.3
 
 * Minor fixes and cleanup (PR #1).
