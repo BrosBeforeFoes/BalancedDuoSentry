@@ -70,3 +70,4 @@ jobs:
         with:
           name: ${{ steps.info.outputs.plugin_name }}-${{ steps.info.outputs.plugin_version }}
           path: ${{ steps.info.outputs.expected_zip_path }}
+          archive: false
